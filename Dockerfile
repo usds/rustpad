@@ -2,12 +2,16 @@ FROM rust:alpine as backend
 WORKDIR /home/rust/src
 RUN apk --no-cache add musl-dev openssl-dev
 COPY . .
+ENV RUSTFLAGS="-Ctarget-feature=-crt-static"
+ENV OPENSSL_DIR=/usr
 RUN cargo test --release
 RUN cargo build --release
 
 FROM amd64/rust:alpine as wasm
 WORKDIR /home/rust/src
-RUN apk --no-cache add curl musl-dev
+RUN apk --no-cache add curl musl-dev openssl-dev binaryen
+ENV RUSTFLAGS="-Ctarget-feature=-crt-static"
+ENV OPENSSL_DIR=/usr
 RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 COPY . .
 RUN wasm-pack build --target web rustpad-wasm
