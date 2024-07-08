@@ -1,4 +1,5 @@
 use rustpad_server::{server, database::Database, ServerConfig};
+use std::net::IpAddr;
 
 #[tokio::main]
 async fn main() {
@@ -9,6 +10,8 @@ async fn main() {
         .unwrap_or_else(|_| String::from("3030"))
         .parse()
         .expect("Unable to parse PORT");
+
+    let addr = IpAddr::from([0; 8]);
 
     let config = ServerConfig {
         expiry_days: std::env::var("EXPIRY_DAYS")
@@ -25,5 +28,5 @@ async fn main() {
         },
     };
 
-    warp::serve(server(config)).run(([0, 0, 0, 0], port)).await;
+    warp::serve(server(config)).run((addr, port)).await;
 }
